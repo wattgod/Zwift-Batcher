@@ -32,32 +32,15 @@ def save_workout(workout_name, description):
     <sportType>bike</sportType>
     <tags/>
     <workout>
-'''
-    
-    # Add warmup
-    xml_content += '''        <Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>
-'''
-    
-    # Add steady state Z3 block
-    xml_content += '''        <SteadyState Duration="600" Power="0.80" Cadence="95"/>
-'''
-    
-    # Add recovery before intervals
-    xml_content += '''        <SteadyState Duration="180" Power="0.65" Cadence="85"/>
-'''
-    
-    # Add 3 sets of intervals with recovery
-    for i in range(3):
-        # 5x30/30 intervals
-        xml_content += '''        <IntervalsT Repeat="5" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.85" Cadence="95"/>
-'''
-        # Add recovery between sets (if not last set)
-        if i < 2:
-            xml_content += '''        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
-'''
-    
-    # Add cooldown
-    xml_content += '''        <Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>
+        <Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>
+        <SteadyState Duration="600" Power="0.80" Cadence="95"/>
+        <SteadyState Duration="180" Power="0.65" Cadence="85"/>
+        <IntervalsT Repeat="5" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.85" Cadence="90"/>
+        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
+        <IntervalsT Repeat="5" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.85" Cadence="90"/>
+        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
+        <IntervalsT Repeat="5" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.85" Cadence="90"/>
+        <Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>
     </workout>
 </workout_file>'''
     
