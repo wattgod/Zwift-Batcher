@@ -27,7 +27,7 @@ def save_workout(workout_name, description):
     xml_content = f'''<?xml version="1.0" encoding="UTF-8"?>
 <workout_file xmlns="http://www.zwift.com">
     <author>Gravel God Cycling</author>
-    <name>{workout_name}</name>
+    <n>{workout_name}</n>
     <description><![CDATA[{format_workout_description(workout_name, description)}]]></description>
     <sportType>bike</sportType>
     <tags/>
