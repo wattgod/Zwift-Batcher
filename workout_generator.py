@@ -26,22 +26,21 @@ def save_workout(workout_name, description):
     """Save the workout to a file."""
     xml_content = f'''<?xml version="1.0" encoding="UTF-8"?>
 <workout_file>
-\t<author>Gravel God Cycling</author>
-\t<name>{workout_name}</name>
-\t<description><![CDATA[{format_workout_description(workout_name, description)}]]></description>
-\t<sportType>bike</sportType>
-\t<tags/>
-\t<workout>
-\t\t<Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>
-\t\t<SteadyState Duration="600" Power="0.80" Cadence="95"/>
-\t\t<SteadyState Duration="180" Power="0.65" Cadence="85"/>
-\t\t<IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
-\t\t<SteadyState Duration="300" Power="0.65" Cadence="85"/>
-\t\t<IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
-\t\t<SteadyState Duration="300" Power="0.65" Cadence="85"/>
-\t\t<IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
-\t\t<Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>
-\t</workout>
+    <author>Gravel God Cycling</author>
+    <description><![CDATA[{format_workout_description(workout_name, description)}]]></description>
+    <sportType>bike</sportType>
+    <tags/>
+    <workout>
+        <Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>
+        <SteadyState Duration="600" Power="0.80" Cadence="95"/>
+        <SteadyState Duration="180" Power="0.65" Cadence="85"/>
+        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
+        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
+        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
+        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
+        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
+        <Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>
+    </workout>
 </workout_file>'''
     
     # Generate filename with timestamp
