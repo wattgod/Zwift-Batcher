@@ -1,53 +1,76 @@
 import os
 from datetime import datetime
+import re
 from lxml import etree as ET
 
-def create_workout_file(name, description, segments):
-    """Create a Zwift workout file with the given segments."""
-    # Create root element
-    NSMAP = {None: "http://www.zwift.com"}
-    workout = ET.Element("{http://www.zwift.com}workout_file", nsmap=NSMAP)
-    
-    # Add metadata
-    author = ET.SubElement(workout, "author")
-    author.text = "Gravel God Cycling"
-    
-    name_elem = ET.SubElement(workout, "name")
-    name_elem.text = name
-    
-    desc = ET.SubElement(workout, "description")
-    desc.text = description
-    
-    sport = ET.SubElement(workout, "sportType")
-    sport.text = "bike"
-    
-    ET.SubElement(workout, "tags")
-    
-    # Create workout section
-    workout_section = ET.SubElement(workout, "workout")
-    
-    # Add all segments
-    for segment in segments:
-        segment_type = segment["type"]
-        element = ET.SubElement(workout_section, segment_type)
-        for key, value in segment["attributes"].items():
-            element.set(key, str(value))
-    
-    return workout
+def format_workout_description(workout_name, description):
+    """Format the workout description with pre-activity instructions and structure."""
+    return f"""► Pre-activity Instructions:
+- Ensure proper fueling: eat 2-3 hours before or a light snack 30 mins before
+- Hydration: Start well hydrated and plan for 1 bottle/hour
+- For surges: Focus on smooth power transitions
+- During VO2/max efforts: Maintain form even as fatigue sets in
+- Recovery periods are crucial - keep them easy to ensure quality intervals
 
-def save_workout(name, description, segments):
-    """Save the workout to a .zwo file."""
-    workout = create_workout_file(name, description, segments)
+► Workout Structure:
+{description}
+
+► Best Practices:
+- Maintain proper form throughout, especially during high-power efforts
+- If power drops significantly during intervals, take extra recovery
+- Keep cadence high (90-95) during surges and VO2 efforts
+- Focus on smooth transitions between power targets
+- Use recovery periods effectively to prepare for next effort"""
+
+def save_workout(workout_name, description):
+    """Save the workout to a file."""
+    xml_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+<workout_file xmlns="http://www.zwift.com">
+    <author>Gravel God Cycling</author>
+    <name>{workout_name}</name>
+    <description><![CDATA[{format_workout_description(workout_name, description)}]]></description>
+    <sportType>bike</sportType>
+    <tags/>
+    <workout>
+'''
     
-    # Generate filename
+    # Add warmup
+    xml_content += '''        <Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>
+'''
+    
+    # Add steady state Z3 block
+    xml_content += '''        <SteadyState Duration="600" Power="0.80" Cadence="95"/>
+'''
+    
+    # Add recovery before intervals
+    xml_content += '''        <SteadyState Duration="180" Power="0.65" Cadence="85"/>
+'''
+    
+    # Add 3 sets of intervals with recovery
+    for i in range(3):
+        # 5x30/30 intervals
+        xml_content += '''        <IntervalsT Repeat="5" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.85" Cadence="95"/>
+'''
+        # Add recovery between sets (if not last set)
+        if i < 2:
+            xml_content += '''        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
+'''
+    
+    # Add cooldown
+    xml_content += '''        <Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>
+    </workout>
+</workout_file>'''
+    
+    # Generate filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{name.replace(' ', '_')}_{timestamp}.zwo"
-    filepath = os.path.join(os.path.expanduser("~/Downloads"), filename)
+    filename = f"{workout_name.replace(' ', '_')}_{timestamp}.zwo"
     
-    # Convert to string and save
-    xml_str = ET.tostring(workout, encoding='UTF-8', xml_declaration=True, pretty_print=True).decode('utf-8')
+    # Save to Downloads folder
+    downloads_dir = os.path.expanduser("~/Downloads")
+    filepath = os.path.join(downloads_dir, filename)
+    
     with open(filepath, 'w') as f:
-        f.write(xml_str)
+        f.write(xml_content)
     
     return filepath
 
@@ -60,76 +83,5 @@ if __name__ == "__main__":
 
 3 sets of 5x30 sec ~420w / 30 sec ~300w; full recovery between."""
 
-    # Define workout segments
-    segments = [
-        # Warmup
-        {
-            "type": "Warmup",
-            "attributes": {
-                "Duration": "600",  # 10 min
-                "PowerLow": "0.50",  # 50% FTP
-                "PowerHigh": "0.75",  # 75% FTP
-                "Cadence": "85"
-            }
-        },
-        # 10 min Z3 block
-        {
-            "type": "SteadyState",
-            "attributes": {
-                "Duration": "600",  # 10 min
-                "Power": "0.80",    # Low Z3 (~280-300W for 350 FTP)
-                "Cadence": "95"
-            }
-        },
-        # Recovery before intervals
-        {
-            "type": "SteadyState",
-            "attributes": {
-                "Duration": "180",  # 3 min
-                "Power": "0.65",    # Recovery
-                "Cadence": "85"
-            }
-        }
-    ]
-
-    # Add 3 sets of intervals with recovery
-    for i in range(3):
-        # 5x30/30 intervals
-        segments.append({
-            "type": "IntervalsT",
-            "attributes": {
-                "Repeat": "5",
-                "OnDuration": "30",
-                "OffDuration": "30",
-                "OnPower": "1.20",    # ~420W
-                "OffPower": "0.85",    # ~300W
-                "Cadence": "95",
-                "CadenceResting": "90"
-            }
-        })
-        
-        # Add recovery between sets (except after last set)
-        if i < 2:
-            segments.append({
-                "type": "SteadyState",
-                "attributes": {
-                    "Duration": "300",  # 5 min
-                    "Power": "0.65",    # Recovery
-                    "Cadence": "85"
-                }
-            })
-
-    # Cooldown
-    segments.append({
-        "type": "Cooldown",
-        "attributes": {
-            "Duration": "600",  # 10 min
-            "PowerLow": "0.75",
-            "PowerHigh": "0.50",
-            "Cadence": "85"
-        }
-    })
-
-    # Save the workout
-    filepath = save_workout("High_Intensity_Intervals", description, segments)
+    filepath = save_workout("High_Intensity_Intervals", description)
     print(f"Workout saved to: {filepath}") 
