@@ -15,11 +15,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = Flask(__name__)
+app = Flask(__name__, 
+    static_folder='static',
+    template_folder='templates'
+)
 CORS(app)
 
 # Create a directory for workout files
-WORKOUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'generated_workouts')
+if 'DYNO' in os.environ:  # Running on Heroku
+    WORKOUT_DIR = '/tmp/generated_workouts'  # Use Heroku's ephemeral filesystem
+else:
+    WORKOUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'generated_workouts')
 os.makedirs(WORKOUT_DIR, exist_ok=True)
 logger.info(f"Using directory for workouts: {WORKOUT_DIR}")
 
