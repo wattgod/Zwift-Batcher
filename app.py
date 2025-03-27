@@ -18,9 +18,10 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app)
 
-# Use Downloads directory
-WORKOUT_DIR = os.path.expanduser("~/Downloads")
-logger.info(f"Using Downloads directory for workouts: {WORKOUT_DIR}")
+# Create a directory for workout files
+WORKOUT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'generated_workouts')
+os.makedirs(WORKOUT_DIR, exist_ok=True)
+logger.info(f"Using directory for workouts: {WORKOUT_DIR}")
 
 def sanitize_filename(filename):
     """Sanitize filename by removing invalid characters."""
@@ -416,35 +417,44 @@ def index():
 @app.route('/generate', methods=['POST'])
 def generate_workout():
     try:
-        data = request.json
-        if not data:
-            raise ValueError("No JSON data received")
-            
-        workout_name = data.get('workout_name')
-        if not workout_name:
-            raise ValueError("Workout name is required")
-            
-        description = data.get('description', '')
+        data = request.get_json()
         
-        logger.info(f"Generating workout: {workout_name}")
-        filename = generate_zwo_file(workout_name, description)
+        # Get the workout name and description
+        workout_name = data.get('name', '').strip()
+        workout_description = data.get('description', '').strip()
         
-        # Verify file exists before returning success
+        if not workout_name or not workout_description:
+            return jsonify({'error': 'Missing workout name or description'}), 400
+            
+        # Sanitize the filename
+        safe_filename = sanitize_filename(workout_name)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{safe_filename}_{timestamp}.zwo"
+        
+        # Create full path for the workout file
         filepath = os.path.join(WORKOUT_DIR, filename)
-        if not os.path.exists(filepath):
-            raise FileNotFoundError("Generated file not found")
         
-        return jsonify({
-            'success': True,
-            'filename': filename,
-            'message': f'Workout generated successfully! Check your Downloads folder: {filepath}'
-        })
+        # Parse the workout description
+        workout_sections = parse_workout_description(workout_description)
+        
+        # Create the XML structure
+        workout_xml = create_workout_xml(workout_name, workout_sections)
+        
+        # Save the file
+        with open(filepath, 'wb') as f:
+            f.write(ET.tostring(workout_xml, pretty_print=True, xml_declaration=True, encoding='UTF-8'))
+        
+        # Return the file
+        return send_file(
+            filepath,
+            as_attachment=True,
+            download_name=filename,
+            mimetype='application/xml'
+        )
+        
     except Exception as e:
-        logger.error(f"Error in generate_workout: {e}\n{traceback.format_exc()}")
-        return jsonify({
-            'success': False,
-            'message': f"Error generating workout: {str(e)}"
-        }), 500
+        logger.error(f"Error generating workout: {str(e)}\n{traceback.format_exc()}")
+        return jsonify({'error': f'Error generating workout: {str(e)}'}), 500
 
 @app.route('/download/<filename>')
 def download(filename):
@@ -464,17 +474,5 @@ def download(filename):
         }), 500
 
 if __name__ == '__main__':
-    try:
-        # Kill any existing processes
-        os.system("pkill -f 'python3 app.py' || true")
-        
-        # Wait for port to be available
-        time.sleep(2)
-        
-        # Enable debug mode and start server
-        app.debug = True
-        logger.info("Starting server on localhost:8080...")
-        app.run(port=8080, host='localhost')
-    except Exception as e:
-        logger.error(f"Failed to start server: {e}")
-        raise
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
