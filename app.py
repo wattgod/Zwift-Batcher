@@ -294,125 +294,61 @@ def format_workout_description(workout_name, description):
 - 10 min easy"""
     return description
 
-def generate_workout_xml(workout_section, description):
-    """Generate workout XML based on text description."""
-    sections = parse_workout_description(description)
+def create_workout_xml(name, description):
+    """Create the XML structure for a workout."""
+    # Create root element
+    workout = ET.Element("workout_file")
     
-    # Add warmup if Z1-Z2 base mentioned
-    if sections['warmup']:
-        ET.SubElement(workout_section, "Warmup",
-                     Duration="600",  # 10 minute warmup
-                     PowerLow="0.5",  # Z1
-                     PowerHigh="0.65", # Z2
-                     Cadence="85")
+    # Add author
+    author = ET.SubElement(workout, "author")
+    author.text = "Gravel God Cycling"
     
-    # Parse main set
-    for line in sections['main']:
-        if 'x' in line and '/' in line:  # Interval set
-            interval_data = parse_interval_set(line)
-            if interval_data:
-                # Process each set
-                for _ in range(interval_data['sets']):
-                    # 30" max / 30" easy intervals
-                    ET.SubElement(workout_section, "IntervalsT",
-                                Repeat="5",  # 5 repeats of 30/30
-                                OnDuration="30",
-                                OffDuration="30",
-                                OnPower="1.2",  # Max
-                                OffPower="0.65",  # Easy/Z2
-                                Cadence="90")
-                    
-                    # 4' SFR block
-                    if interval_data['sfr_cadence']:
-                        ET.SubElement(workout_section, "SteadyState",
-                                    Duration="240",  # 4 minutes
-                                    Power="0.83",  # Z3
-                                    Cadence=str(interval_data['sfr_cadence']))
-                    
-                    # Recovery between sets
-                    if _ < interval_data['sets'] - 1:  # Don't add recovery after last set
-                        ET.SubElement(workout_section, "SteadyState",
-                                    Duration=str(interval_data['recovery']),
-                                    Power="0.65",  # Z2
-                                    Cadence="85")
-        
-        # Handle Z3 endurance blocks
-        elif 'z3' in line.lower() and any(x in line for x in ['hr', '85+']):
-            duration_match = re.search(r'(\d+)\'', line)
-            if duration_match:
-                duration = int(duration_match.group(1)) * 60
-                ET.SubElement(workout_section, "SteadyState",
-                            Duration=str(duration),
-                            Power="0.83",  # Z3
-                            Cadence="90")
+    # Add name
+    workout_name = ET.SubElement(workout, "name")
+    workout_name.text = name
     
-    # Add cooldown
-    ET.SubElement(workout_section, "Cooldown",
-                 Duration="600",  # 10 minute cooldown
-                 PowerLow="0.65",  # Z2
-                 PowerHigh="0.5",  # Z1
-                 Cadence="85")
+    # Add description
+    workout_description = ET.SubElement(workout, "description")
+    workout_description.text = description
+    
+    # Add sportType
+    sport_type = ET.SubElement(workout, "sportType")
+    sport_type.text = "bike"
+    
+    # Add workout tag
+    workout_tag = ET.SubElement(workout, "tags")
+    tag = ET.SubElement(workout_tag, "tag")
+    tag.text = "Gravel God Cycling"
+    
+    return workout
 
-    # Convert the workout section to a string
-    xml_str = ''
-    for child in workout_section:
-        attrs = ' '.join(f'{k}="{v}"' for k, v in child.attrib.items())
-        xml_str += f'    <{child.tag} {attrs}/>\n'
-    
-    return xml_str
-
-def generate_zwo_file(workout_name, description):
-    """Generate a Zwift workout file with proper structure."""
+def generate_zwo_file(name, description):
+    """Generate a ZWO file from the workout description."""
     try:
-        logger.info(f"Generating workout: {workout_name}")
+        # Sanitize the filename
+        safe_filename = sanitize_filename(name)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{safe_filename}_{timestamp}.zwo"
         
-        # Create workout section using ElementTree for the complex structure
-        workout_section = ET.Element("workout")
-        
-        # Generate the workout XML
-        workout_str = generate_workout_xml(workout_section, description)
-        
-        # Generate filename with sanitization
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        safe_name = sanitize_filename(workout_name)
-        filename = f"{safe_name}_{timestamp}.zwo"
+        # Create full path
         filepath = os.path.join(WORKOUT_DIR, filename)
         
-        logger.info(f"Saving workout to: {filepath}")
+        # Create the XML structure
+        workout_xml = create_workout_xml(name, description)
         
-        # Create the complete XML file manually
-        xml_content = f'''<?xml version="1.0" encoding="UTF-8"?>
-<workout_file>
-  <author>Gravel God Cycling</author>
-  <name>{workout_name}</name>
-  <description><![CDATA[{format_workout_description(workout_name, description)}]]></description>
-  <sportType>bike</sportType>
-  <tags/>
-  <workout>
-{workout_str}  </workout>
-</workout_file>'''
+        # Save the file
+        with open(filepath, 'wb') as f:
+            f.write(ET.tostring(workout_xml, pretty_print=True, xml_declaration=True, encoding='UTF-8'))
         
-        # Write the file
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(xml_content)
-        
-        if not os.path.exists(filepath):
-            raise Exception("File was not created successfully")
-            
-        logger.info(f"Workout file generated successfully at {filepath}")
         return filename
-
+        
     except Exception as e:
-        logger.error(f"Error generating workout file: {e}\n{traceback.format_exc()}")
+        logger.error(f"Error generating ZWO file: {str(e)}\n{traceback.format_exc()}")
         raise
 
 @app.route('/')
 def index():
-    try:
-        return render_template('index.html')
-    except Exception as e:
-        logger.error(f"Error rendering index: {e}\n{traceback.format_exc()}")
-        return jsonify({'error': str(e)}), 500
+    return render_template('index.html')
 
 @app.route('/generate', methods=['POST'])
 def generate_workout():
