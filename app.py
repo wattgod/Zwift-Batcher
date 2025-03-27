@@ -23,7 +23,20 @@ CORS(app)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    try:
+        logger.debug("Attempting to render index.html")
+        logger.debug(f"Current directory: {os.getcwd()}")
+        logger.debug(f"Template folder: {app.template_folder}")
+        logger.debug(f"Templates available: {os.listdir(app.template_folder)}")
+        return render_template('index.html')
+    except Exception as e:
+        logger.error(f"Error rendering index.html: {str(e)}")
+        logger.error(traceback.format_exc())
+        return f"Error: {str(e)}", 500
+
+@app.route('/test')
+def test():
+    return "App is working!"
 
 # Create a directory for workout files
 if 'DYNO' in os.environ:  # Running on Heroku
