@@ -24,42 +24,29 @@ def format_workout_description(workout_name, description):
 
 def save_workout(workout_name, description):
     """Save the workout to a file."""
-    # Format the workout name with underscores for both the XML and filename
-    formatted_name = workout_name.replace(' ', '_')
-    
-    # Read the template file
-    template_path = os.path.expanduser("~/Downloads/Mixed_Intervals_20250306_145420(1).zwo")
-    with open(template_path, 'r') as f:
-        template = f.read()
-    
-    # Replace the parts we need to change
-    xml_content = template.replace('Mixed_Intervals', formatted_name)
-    xml_content = xml_content.replace('''Z1-Z2 base with focus on efforts as follows:
-
--12' Z3 with 15" surge every 3'
--4' Z6 (near max)
--2x10' done as...
-30" max / 30" Z2-Z3''', description)
-    
-    # Replace the workout structure
-    workout_start = xml_content.find('<workout>')
-    workout_end = xml_content.find('</workout>')
-    new_workout = '''    <workout>
-        <Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>
-        <SteadyState Duration="600" Power="0.80" Cadence="95"/>
-        <SteadyState Duration="180" Power="0.65" Cadence="85"/>
-        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
-        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
-        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
-        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
-        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
-        <Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>
-    </workout>'''
-    xml_content = xml_content[:workout_start] + new_workout + xml_content[workout_end + len('</workout>'):]
+    xml_content = f'''<?xml version="1.0" encoding="UTF-8"?>
+<workout_file>
+\t<author>Gravel God Cycling</author>
+\t<name>{workout_name}</name>
+\t<description><![CDATA[{format_workout_description(workout_name, description)}]]></description>
+\t<sportType>bike</sportType>
+\t<tags/>
+\t<workout>
+\t\t<Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>
+\t\t<SteadyState Duration="600" Power="0.80" Cadence="95"/>
+\t\t<SteadyState Duration="180" Power="0.65" Cadence="85"/>
+\t\t<IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
+\t\t<SteadyState Duration="300" Power="0.65" Cadence="85"/>
+\t\t<IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
+\t\t<SteadyState Duration="300" Power="0.65" Cadence="85"/>
+\t\t<IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
+\t\t<Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>
+\t</workout>
+</workout_file>'''
     
     # Generate filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{formatted_name}_{timestamp}.zwo"
+    filename = f"{workout_name.replace(' ', '_')}_{timestamp}.zwo"
     
     # Save to Downloads folder
     downloads_dir = os.path.expanduser("~/Downloads")
