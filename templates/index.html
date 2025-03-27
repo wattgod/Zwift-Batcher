@@ -346,38 +346,37 @@
         document.getElementById('workoutForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            document.getElementById('status').classList.add('d-none');
-            document.getElementById('error').classList.add('d-none');
-            document.getElementById('downloadSection').classList.add('d-none');
-
-            const formData = {
-                workout_name: document.getElementById('workout_name').value,
-                description: document.getElementById('description').value
-            };
-
+            const name = document.getElementById('workout_name').value;
+            const description = document.getElementById('description').value;
+            
             try {
                 const response = await fetch('/generate', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify({ name, description })
                 });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    document.getElementById('status').textContent = data.message;
-                    document.getElementById('status').classList.remove('d-none');
-                    
-                    const downloadLink = document.getElementById('downloadLink');
-                    downloadLink.href = `/download/${encodeURIComponent(data.filename)}`;
-                    document.getElementById('downloadSection').classList.remove('d-none');
-                } else {
-                    throw new Error(data.message);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to generate workout');
                 }
+                
+                // Get the file from the response
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                
+                // Create a link and trigger download
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${name}.zwo`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+                
             } catch (error) {
-                document.getElementById('error').textContent = `Error: ${error.message}`;
+                document.getElementById('error').textContent = error.message;
                 document.getElementById('error').classList.remove('d-none');
             }
         });
