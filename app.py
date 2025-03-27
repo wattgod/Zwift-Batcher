@@ -297,30 +297,71 @@ def format_workout_description(workout_name, description):
 def create_workout_xml(name, description):
     """Create the XML structure for a workout."""
     # Create root element
-    workout = ET.Element("workout_file")
+    workout_file = ET.Element("workout_file")
     
     # Add author
-    author = ET.SubElement(workout, "author")
+    author = ET.SubElement(workout_file, "author")
     author.text = "Gravel God Cycling"
     
     # Add name
-    workout_name = ET.SubElement(workout, "name")
+    workout_name = ET.SubElement(workout_file, "name")
     workout_name.text = name
     
     # Add description
-    workout_description = ET.SubElement(workout, "description")
-    workout_description.text = description
+    workout_description = ET.SubElement(workout_file, "description")
+    workout_description.text = format_workout_description(name, description)
     
     # Add sportType
-    sport_type = ET.SubElement(workout, "sportType")
+    sport_type = ET.SubElement(workout_file, "sportType")
     sport_type.text = "bike"
     
     # Add workout tag
-    workout_tag = ET.SubElement(workout, "tags")
-    tag = ET.SubElement(workout_tag, "tag")
+    tags = ET.SubElement(workout_file, "tags")
+    tag = ET.SubElement(tags, "tag")
     tag.text = "Gravel God Cycling"
     
-    return workout
+    # Add workout section
+    workout = ET.SubElement(workout_file, "workout")
+    
+    # Parse the description and create workout structure
+    sections = parse_workout_description(description)
+    
+    # Add warmup if present
+    if sections['warmup']:
+        ET.SubElement(workout, "Warmup",
+                     Duration="900",  # 15 minutes
+                     PowerLow="0.50",  # Z1
+                     PowerHigh="0.75",  # Z2
+                     Cadence="85")
+    
+    # Process main set
+    for line in sections['main']:
+        if 'x' in line:  # Interval set
+            interval_data = parse_interval_set(line)
+            if interval_data:
+                # Add intervals
+                ET.SubElement(workout, "IntervalsT",
+                            Repeat=str(interval_data['sets']),
+                            OnDuration=str(interval_data['interval_length']),
+                            OffDuration=str(interval_data['recovery']),
+                            OnPower="1.0",  # 100% FTP
+                            OffPower="0.65",  # Recovery
+                            Cadence="90")
+        else:
+            # Add steady state
+            ET.SubElement(workout, "SteadyState",
+                        Duration=parse_duration(line),
+                        Power=str(parse_power_zone(line)),
+                        Cadence="90")
+    
+    # Add cooldown
+    ET.SubElement(workout, "Cooldown",
+                 Duration="600",  # 10 minutes
+                 PowerLow="0.75",  # Z2
+                 PowerHigh="0.50",  # Z1
+                 Cadence="85")
+    
+    return workout_file
 
 def generate_zwo_file(name, description):
     """Generate a ZWO file from the workout description."""
