@@ -27,7 +27,35 @@ def save_workout(workout_name, description):
     # Format the workout name with underscores for both the XML and filename
     formatted_name = workout_name.replace(' ', '_')
     
-    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n<workout_file xmlns="http://www.zwift.com">\n    <author>Gravel God Cycling</author>\n    <n>' + formatted_name + '</n>\n    <description><![CDATA[' + format_workout_description(workout_name, description) + ']]></description>\n    <sportType>bike</sportType>\n    <tags/>\n    <workout>\n        <Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>\n        <SteadyState Duration="600" Power="0.80" Cadence="95"/>\n        <SteadyState Duration="180" Power="0.65" Cadence="85"/>\n        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>\n        <SteadyState Duration="300" Power="0.65" Cadence="85"/>\n        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>\n        <SteadyState Duration="300" Power="0.65" Cadence="85"/>\n        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>\n        <Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>\n    </workout>\n</workout_file>'
+    # Read the template file
+    template_path = os.path.expanduser("~/Downloads/Mixed_Intervals_20250306_145420(1).zwo")
+    with open(template_path, 'r') as f:
+        template = f.read()
+    
+    # Replace the parts we need to change
+    xml_content = template.replace('Mixed_Intervals', formatted_name)
+    xml_content = xml_content.replace('''Z1-Z2 base with focus on efforts as follows:
+
+-12' Z3 with 15" surge every 3'
+-4' Z6 (near max)
+-2x10' done as...
+30" max / 30" Z2-Z3''', description)
+    
+    # Replace the workout structure
+    workout_start = xml_content.find('<workout>')
+    workout_end = xml_content.find('</workout>')
+    new_workout = '''    <workout>
+        <Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>
+        <SteadyState Duration="600" Power="0.80" Cadence="95"/>
+        <SteadyState Duration="180" Power="0.65" Cadence="85"/>
+        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
+        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
+        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
+        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
+        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
+        <Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>
+    </workout>'''
+    xml_content = xml_content[:workout_start] + new_workout + xml_content[workout_end + len('</workout>'):]
     
     # Generate filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
