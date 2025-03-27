@@ -24,10 +24,13 @@ def format_workout_description(workout_name, description):
 
 def save_workout(workout_name, description):
     """Save the workout to a file."""
+    # Format the workout name with underscores for both the XML and filename
+    formatted_name = workout_name.replace(' ', '_')
+    
     xml_content = f'''<?xml version="1.0" encoding="UTF-8"?>
 <workout_file xmlns="http://www.zwift.com">
     <author>Gravel God Cycling</author>
-    <n>{workout_name}</n>
+    <n>{formatted_name}</n>
     <description><![CDATA[{format_workout_description(workout_name, description)}]]></description>
     <sportType>bike</sportType>
     <tags/>
@@ -46,7 +49,7 @@ def save_workout(workout_name, description):
     
     # Generate filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"{workout_name.replace(' ', '_')}_{timestamp}.zwo"
+    filename = f"{formatted_name}_{timestamp}.zwo"
     
     # Save to Downloads folder
     downloads_dir = os.path.expanduser("~/Downloads")
