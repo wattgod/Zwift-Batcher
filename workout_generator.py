@@ -35,11 +35,11 @@ def save_workout(workout_name, description):
         <Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>
         <SteadyState Duration="600" Power="0.80" Cadence="95"/>
         <SteadyState Duration="180" Power="0.65" Cadence="85"/>
-        <IntervalsT Repeat="5" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.85" Cadence="90"/>
+        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
         <SteadyState Duration="300" Power="0.65" Cadence="85"/>
-        <IntervalsT Repeat="5" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.85" Cadence="90"/>
+        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
         <SteadyState Duration="300" Power="0.65" Cadence="85"/>
-        <IntervalsT Repeat="5" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.85" Cadence="90"/>
+        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
         <Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>
     </workout>
 </workout_file>'''
