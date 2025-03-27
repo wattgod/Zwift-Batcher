@@ -426,23 +426,11 @@ def generate_workout():
         if not workout_name or not workout_description:
             return jsonify({'error': 'Missing workout name or description'}), 400
             
-        # Sanitize the filename
-        safe_filename = sanitize_filename(workout_name)
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"{safe_filename}_{timestamp}.zwo"
+        # Generate the workout file
+        filename = generate_zwo_file(workout_name, workout_description)
         
         # Create full path for the workout file
         filepath = os.path.join(WORKOUT_DIR, filename)
-        
-        # Parse the workout description
-        workout_sections = parse_workout_description(workout_description)
-        
-        # Create the XML structure
-        workout_xml = create_workout_xml(workout_name, workout_sections)
-        
-        # Save the file
-        with open(filepath, 'wb') as f:
-            f.write(ET.tostring(workout_xml, pretty_print=True, xml_declaration=True, encoding='UTF-8'))
         
         # Return the file
         return send_file(
