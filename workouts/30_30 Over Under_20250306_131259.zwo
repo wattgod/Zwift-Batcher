@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workout_file><author>Gravel God Cycling</author><name>30/30 Over Under</name><description>Z1-Z2 base with emphasis on efforts:
+
+-12' @ 300-320w with 15" acceleration every 3'
+-3 x 8' as...
+
+4 x 30" hard / 30" easy
+4' steady @ 350-370w
+
+Full recovery between all efforts.</description><sportType>bike</sportType><tags /><workout><Warmup Duration="1200" PowerLow="0.45" PowerHigh="0.75" /><Cooldown Duration="600" PowerLow="0.75" PowerHigh="0.45" /></workout></workout_file>

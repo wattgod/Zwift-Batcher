@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravel God Cycling - Workout Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --gg-brown-dark: #59473C;
+            --gg-brown-medium: #8C7568;
+            --gg-brown-light: #A68E80;
+            --gg-beige: #BFA595;
+            --gg-turquoise: #40E0D0;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: var(--gg-brown-dark);
+        }
+
+        .navbar {
+            background-color: var(--gg-brown-dark);
+        }
+
+        .navbar-brand {
+            color: var(--gg-turquoise) !important;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin-top: 2rem;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 1rem;
+        }
+
+        .card-header {
+            background-color: var(--gg-brown-dark);
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: var(--gg-brown-dark);
+            border-color: var(--gg-brown-dark);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--gg-brown-medium);
+            border-color: var(--gg-brown-medium);
+        }
+
+        .btn-outline-primary {
+            color: var(--gg-brown-dark);
+            border-color: var(--gg-brown-dark);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--gg-brown-dark);
+            color: white;
+        }
+
+        .template-card {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .template-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .preview-section {
+            background-color: var(--gg-beige);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        #loginModal .modal-header {
+            background-color: var(--gg-brown-dark);
+            color: white;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--gg-brown-dark);
+            border-color: var(--gg-brown-dark);
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--gg-brown-medium);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-bicycle me-2"></i>
+                Gravel God Cycling
+            </a>
+            <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#loginModal">
+                <i class="fas fa-user me-2"></i>Login
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Workout Templates -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="mb-3">Popular Templates</h3>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card template-card" onclick="loadTemplate('gavin')">
+                            <div class="card-body">
+                                <h5 class="card-title">Gavin Special</h5>
+                                <p class="card-text">High-intensity intervals with perfect recovery ratios</p>
+                                <span class="badge bg-primary">40/20s</span>
+                                <span class="badge bg-info">Z6</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card template-card" onclick="loadTemplate('bookend')">
+                            <div class="card-body">
+                                <h5 class="card-title">Bookend Power</h5>
+                                <p class="card-text">Start and finish strong with steady middle</p>
+                                <span class="badge bg-primary">Endurance</span>
+                                <span class="badge bg-info">Z4-Z6</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card template-card" onclick="loadTemplate('custom')">
+                            <div class="card-body">
+                                <h5 class="card-title">Custom Workout</h5>
+                                <p class="card-text">Create your own structured workout</p>
+                                <span class="badge bg-primary">Custom</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workout Generator -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Create Your Workout</span>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="previewToggle">
+                    <label class="form-check-label text-white" for="previewToggle">Show Preview</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <form id="workoutForm">
+                    <div class="mb-3">
+                        <label for="workout_name" class="form-label">Workout Name</label>
+                        <input type="text" class="form-control" id="workout_name" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Workout Description</label>
+                                <textarea class="form-control" id="description" rows="20" required></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="previewSection" class="preview-section d-none">
+                                <h4>Preview</h4>
+                                <div id="previewContent"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-dumbbell me-2"></i>Generate Workout
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="status" class="alert alert-info d-none"></div>
+        <div id="error" class="alert alert-danger d-none"></div>
+
+        <!-- Download Link -->
+        <div id="downloadSection" class="text-center mt-3 d-none">
+            <a id="downloadLink" href="#" class="btn btn-success">
+                <i class="fas fa-download me-2"></i>Download Workout File
+            </a>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login to Gravel God</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="nav nav-tabs mb-3">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#register">Register</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="login">
+                            <form id="loginForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Login</button>
+                            </form>
+                        </div>
+                        <div class="tab-pane" id="register">
+                            <form id="registerForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Register</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // Template loading
+        const templates = {
+            'gavin': {
+                name: 'Gavin Special - 5x8min',
+                description: `► Pre-activity Instructions:
+- Focus on maintaining high cadence (100+ RPM) during the high cadence section
+- During 40/20s, aim for max power output (Z6/Max Effort, RPE 9-10)
+- Keep recovery periods easy (Z2, RPE 2-3) to ensure quality of the next interval
+- Pre-workout nutrition: Ensure adequate carbohydrate intake (50-75g/hour for workouts >90min)
+- Hydration: Preload with sodium and water, aim for 500-1000mg sodium/hour during workout
+- If you can't hit target power during intervals, stop and recover - quality over quantity
+- Mix up your position during intervals (both seated and standing)
+
+► Warm-up:
+- 15-20 min progressive warm-up from Z1 to Z2 (RPE 1-3)
+- 10 min high cadence Z3 (100-120 rpm, RPE 4-5)
+
+► Main Set (Repeat 5x):
+- 2 min 40/20s (40s Z6/Max Effort, 20s Z2, RPE 2-3)
+- 4 min @ Z3/Z4 (RPE 5-6)
+- 2 min 40/20s (40s Z6/Max Effort, 20s Z2, RPE 2-3)
+- 4 min recovery @ Z2 (RPE 2-3) - 1:1 recovery ratio
+
+► Cool-down:
+- Z2 for remaining time (typically 90 min total, RPE 2-3)`
+            },
+            'bookend': {
+                name: 'Bookend Power Intervals',
+                description: `► Pre-activity Instructions:
+- Focus on maintaining steady power in Z4-Z6 ranges
+- Keep cadence high during power sections (90-100 RPM)
+- Fuel well before and during (60-90g carbs/hour)
+- Stay hydrated (1 bottle/hour minimum)
+
+► First 90 minutes:
+- 8 x 30s max power (Z6, RPE 9-10)
+- 30s easy between (Z2, RPE 2-3)
+
+► Middle Section (2 hours):
+- Steady Z2/Z3 with 40-60min accumulated at Z4
+
+► Final 90 minutes:
+- Repeat the first section structure
+- Maintain quality over quantity
+
+► Cool-down:
+- 15min easy spinning`
+            }
+        };
+
+        function loadTemplate(templateId) {
+            if (templateId === 'custom') {
+                document.getElementById('workout_name').value = '';
+                document.getElementById('description').value = '';
+                return;
+            }
+
+            const template = templates[templateId];
+            document.getElementById('workout_name').value = template.name;
+            document.getElementById('description').value = template.description;
+            updatePreview();
+        }
+
+        // Preview functionality
+        document.getElementById('previewToggle').addEventListener('change', function(e) {
+            const previewSection = document.getElementById('previewSection');
+            previewSection.classList.toggle('d-none', !e.target.checked);
+            if (e.target.checked) {
+                updatePreview();
+            }
+        });
+
+        function updatePreview() {
+            const description = document.getElementById('description').value;
+            const previewContent = document.getElementById('previewContent');
+            previewContent.innerHTML = marked.parse(description);
+        }
+
+        document.getElementById('description').addEventListener('input', function() {
+            if (!document.getElementById('previewSection').classList.contains('d-none')) {
+                updatePreview();
+            }
+        });
+
+        // Form submission
+        document.getElementById('workoutForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            document.getElementById('status').classList.add('d-none');
+            document.getElementById('error').classList.add('d-none');
+            document.getElementById('downloadSection').classList.add('d-none');
+
+            const formData = {
+                workout_name: document.getElementById('workout_name').value,
+                description: document.getElementById('description').value
+            };
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('status').textContent = data.message;
+                    document.getElementById('status').classList.remove('d-none');
+                    
+                    const downloadLink = document.getElementById('downloadLink');
+                    downloadLink.href = `/download/${encodeURIComponent(data.filename)}`;
+                    document.getElementById('downloadSection').classList.remove('d-none');
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                document.getElementById('error').textContent = `Error: ${error.message}`;
+                document.getElementById('error').classList.remove('d-none');
+            }
+        });
+
+        // Auth forms
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // TODO: Implement login
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // TODO: Implement registration
+        });
+    </script>
+</body>
+</html> 

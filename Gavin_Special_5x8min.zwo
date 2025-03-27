@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<workout_file>
+	<author>Gravel God Cycling</author>
+	<name>Gavin Special - 5x8min</name>
+	<description>Warm-up:
+- 10 min @ Z2 (RPE 2-3)
+- 3 min @ Z3 (RPE 4-5)
+- 2 min @ Z4 (RPE 6)
+- 5 min @ Z2 (RPE 2-3)
+
+Main Set (Repeat 5x):
+- 2 min 40/20s (40s Max Effort, 20s Z2, RPE 2-3)
+- 4 min @ Z4, RPE 6
+- 2 min 40/20s (40s Max Effort, 20s Z2, RPE 2-3)
+- Descend power gradually back to Z1 before next rep
+
+Cool-down:
+- 10 min @ Z2, RPE 2-3</description>
+	<sportType>bike</sportType>
+	<tags />
+	<workout>
+		<Warmup Duration="600" PowerLow="0.56" PowerHigh="0.75" />
+		<IntervalsT Repeat="5" OnDuration="40" OnPowerLow="1.05" OnPowerHigh="1.2" OffDuration="20" OffPowerLow="0.56" OffPowerHigh="0.65" />
+		<SteadyState Duration="240" PowerLow="0.91" PowerHigh="1.05" />
+		<IntervalsT Repeat="5" OnDuration="40" OnPowerLow="1.05" OnPowerHigh="1.2" OffDuration="20" OffPowerLow="0.56" OffPowerHigh="0.65" />
+		<Cooldown Duration="600" PowerLow="0.56" PowerHigh="0.75" />
+	</workout>
+</workout_file>
