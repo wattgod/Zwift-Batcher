@@ -27,25 +27,7 @@ def save_workout(workout_name, description):
     # Format the workout name with underscores for both the XML and filename
     formatted_name = workout_name.replace(' ', '_')
     
-    xml_content = f'''<?xml version="1.0" encoding="UTF-8"?>
-<workout_file xmlns="http://www.zwift.com">
-    <author>Gravel God Cycling</author>
-    <n>{formatted_name}</n>
-    <description><![CDATA[{format_workout_description(workout_name, description)}]]></description>
-    <sportType>bike</sportType>
-    <tags/>
-    <workout>
-        <Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>
-        <SteadyState Duration="600" Power="0.80" Cadence="95"/>
-        <SteadyState Duration="180" Power="0.65" Cadence="85"/>
-        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
-        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
-        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
-        <SteadyState Duration="300" Power="0.65" Cadence="85"/>
-        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>
-        <Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>
-    </workout>
-</workout_file>'''
+    xml_content = '<?xml version="1.0" encoding="UTF-8"?>\n<workout_file xmlns="http://www.zwift.com">\n    <author>Gravel God Cycling</author>\n    <n>' + formatted_name + '</n>\n    <description><![CDATA[' + format_workout_description(workout_name, description) + ']]></description>\n    <sportType>bike</sportType>\n    <tags/>\n    <workout>\n        <Warmup Duration="600" PowerLow="0.5" PowerHigh="0.65" Cadence="85"/>\n        <SteadyState Duration="600" Power="0.80" Cadence="95"/>\n        <SteadyState Duration="180" Power="0.65" Cadence="85"/>\n        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>\n        <SteadyState Duration="300" Power="0.65" Cadence="85"/>\n        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>\n        <SteadyState Duration="300" Power="0.65" Cadence="85"/>\n        <IntervalsT Repeat="10" OnDuration="30" OffDuration="30" OnPower="1.2" OffPower="0.75" Cadence="90"/>\n        <Cooldown Duration="600" PowerLow="0.65" PowerHigh="0.5" Cadence="85"/>\n    </workout>\n</workout_file>'
     
     # Generate filename with timestamp
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
