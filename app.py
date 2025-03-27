@@ -21,6 +21,10 @@ app = Flask(__name__,
 )
 CORS(app)
 
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 # Create a directory for workout files
 if 'DYNO' in os.environ:  # Running on Heroku
     WORKOUT_DIR = '/tmp/generated_workouts'  # Use Heroku's ephemeral filesystem
@@ -392,10 +396,6 @@ def generate_zwo_file(name, description):
     except Exception as e:
         logger.error(f"Error generating ZWO file: {str(e)}\n{traceback.format_exc()}")
         raise
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 @app.route('/generate', methods=['POST'])
 def generate_workout():
